@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 """===============================================================================
 국토교통부 실거래가 불러오기
 http://rtdown.molit.go.kr/
@@ -58,12 +59,18 @@ error = error * error
 total_error['mode'] = error.sum()
 
 
-model = data['거래가'].mean()
-model = np.full([data.shape[0],1], model)
-plt.plot(data['거래가'].values[:20])
-plt.plot(model[:20, 0])
+plt.scatter(total_error['mean'], [0])
+plt.scatter(total_error['median'], [1])
+# plt.scatter(total_error['mode'], [2])
 plt.show()
 
+
+model = data['거래가'].mean()
+model = np.full([data.shape[0],1], model)
+
+plt.plot(data['거래가'].values[:50])
+plt.plot(model[:50, 0])
+plt.show()
 
 """===============================================================================
 데이터 추가
@@ -81,6 +88,7 @@ from sklearn.linear_model import LinearRegression
 lm = LinearRegression()
 
 X = np.array(data['면적'].values)
+X = np.random.random([26286,1])
 Y = np.array(data['거래가'].values)
 
 X = X[:, np.newaxis]

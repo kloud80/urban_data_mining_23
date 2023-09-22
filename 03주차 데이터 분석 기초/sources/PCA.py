@@ -109,16 +109,16 @@ def getDegree(v):
 각도차이 = 각도_X - 변환각도
 각도차이 = 각도차이 * 각도차이
 
-np.where(각도차이 < 0.001)
+np.where(각도차이 < 0.0001)
 
 
 plt.scatter(원래각도[:,0], 원래각도[:,1],s=0.5)
-plt.scatter(원래각도[np.where(각도차이 < 0.00001),0], 원래각도[np.where(각도차이 < 0.00001),1],s=5, marker='X', color='#FF0000')
+plt.scatter(원래각도[np.where(각도차이 < 0.0001),0], 원래각도[np.where(각도차이 < 0.0001),1],s=5, marker='X', color='#FF0000')
 plt.show()
 
 
 plt.scatter(행렬변환[:,0], 행렬변환[:,1],s=0.5)
-plt.scatter(행렬변환[np.where(각도차이 < 0.00001),0], 행렬변환[np.where(각도차이 < 0.00001),1],s=5, marker='X', color='#FF0000')
+plt.scatter(행렬변환[np.where(각도차이 < 0.0001),0], 행렬변환[np.where(각도차이 < 0.0001),1],s=5, marker='X', color='#FF0000')
 plt.show()
 
 

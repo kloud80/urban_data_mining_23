@@ -16,16 +16,17 @@ import time
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-mpl.rc('font', family='NanumGothic') #한글 폰트 적용시
+mpl.rc('font', family='gulim') #한글 폰트 적용시
 
 """학습용 데이터셋을 불러옴"""
-data = pd.read_excel('04주차 의사결정나무와 앙상블/data/Ⅰ. 도시일반현황/1-2-3.도시·군기본계획 주요지표.xls', skiprows=2, header=[0,1,2])
+data = pd.read_excel('04주차 의사결정나무와 앙상블/data/Ⅰ. 도시일반현황/1-2-3.도시·군기본계획 주요지표.xls', skiprows=2, header=[0,1,2], dtype='str')
 
 cols = ['도시명', '수립일', '목표년도', '계획인구', '시가화예정용지', '보전용지', '시가화용지', '주거용지', '상업용지', '공업용지', '관리용지']
 data.columns = cols
 
 data = data[~data['수립일'].isnull()]
 
+data[['목표년도', '계획인구', '시가화예정용지', '보전용지', '시가화용지', '주거용지', '상업용지', '공업용지', '관리용지']] = data[['목표년도', '계획인구', '시가화예정용지', '보전용지', '시가화용지', '주거용지', '상업용지', '공업용지', '관리용지']].astype('int64')
 
 """인구감소지역"""
 감소지역 = ['가평군','연천군','고성군', '삼척시', '양구군', '양양군', '영월군', '정선군', \
@@ -42,38 +43,37 @@ data = data[~data['수립일'].isnull()]
 
 data['감소지역'] = data['도시명'].apply(lambda x : 1 if x in 감소지역 else 0)
 
+특광역시 = ['서울특별시 ', '부산광역시 ', '인천광역시 ', '대구광역시 ', '대전광역시 ', '광주광역시 ', '울산광역시 ']
 
-tmp = sdot_data_total.dtypes
-
-tmp = sdot_data_total.mean()
+data = data[~data['도시명'].isin(특광역시)]
 
 """ Tree 모형 분석을 위하 주변 도로 면적비율과, 대지면적 비율 만 불러옴 (도=X, 대=y)"""
-tmp = sdot_data_total[['도', '대', '종속']]
+tmp = data[['계획인구', '시가화용지', '감소지역']]
 
 """ plot으로 고온그룹과 저온그룹을 2차원에 표시"""
-x1 = np.array(tmp[tmp['종속'] == 1][['도', '대']].fillna(0).astype('float').values)
-y1 = np.array(tmp[tmp['종속'] == 1]['종속'].values)
+x1 = np.array(tmp[tmp['감소지역'] == 1][['계획인구', '시가화용지']].values)
+y1 = np.array(tmp[tmp['감소지역'] == 1]['감소지역'].values)
 y1 = y1.reshape(y1.shape[0], 1)
 
-x2 = np.array(tmp[tmp['종속'] == 0][['도', '대']].fillna(0).astype('float').values)
-y2 = np.array(tmp[tmp['종속'] == 0]['종속'].values)
+x2 = np.array(tmp[tmp['감소지역'] == 0][['계획인구', '시가화용지']].values)
+y2 = np.array(tmp[tmp['감소지역'] == 0]['감소지역'].values)
 y2 = y2.reshape(y2.shape[0], 1)
-                   
+
 
 plt.figure(figsize=(15, 15))
-plt.scatter(x=x1[:,0], y=x1[:,1], marker='x', color='red', label='고온')
-plt.scatter(x=x2[:,0], y=x2[:,1], marker='o', color='blue', label='저온')
+plt.scatter(x=x1[:,0], y=x1[:,1], marker='x', color='red', label='감소지역')
+plt.scatter(x=x2[:,0], y=x2[:,1], marker='o', color='blue', label='비감소지역')
 plt.legend(fontsize=20)
 plt.show()
 
 
 #%%
-tmp = sdot_data_total[['도', '대', '종속']].fillna(0)
-tmp['종속']
+tmp = data[['계획인구', '시가화용지', '감소지역']]
+
 
 """학습을 위하 pandas를 numpy로 변환하여 x와 y 배열 생성"""
-x = np.array(tmp[['도', '대']].astype('float').values)
-y = np.array(tmp['종속'].values)
+x = np.array(tmp[['계획인구', '시가화용지']].values)
+y = np.array(tmp['감소지역'].values)
 y = y.reshape(y.shape[0], 1) #x배열과 shape를 같게 reshape
 
 """지니인덱스 계산 함수"""
@@ -87,7 +87,7 @@ def GiniIndex(y):
 
 
 print(str(GiniIndex(y)))
-result = '고온' if y.sum() > len(y)/2 else '저온'
+result = '감소' if y.sum() > len(y)/2 else '비감소'
 len(y) - y.sum()
 
 #%%
@@ -111,6 +111,7 @@ I = I.reshape(int(I.shape[0]/4), 4)
 
 
 plt.figure(figsize=(15, 15))
+plt.title('계획인구')
 plt.scatter(x=I[:,2], y=I[:,3],  marker='o', color='grey', label='Gini')
 plt.show()
 
@@ -139,33 +140,34 @@ I1 = split_loop(x[:,0], y)
 I2 = split_loop(x[:,1], y)
 
 plt.figure(figsize=(15, 15))
-plt.scatter(x=I1[:,2], y=I1[:,3],  marker='o', color='blue', label='도로')
-plt.scatter(x=I2[:,2], y=I2[:,3],  marker='x', color='red', label='대지')
+plt.scatter(x=I1[:,2], y=I1[:,3],  marker='o', color='blue', label='계획인구')
+plt.scatter(x=I2[:,2], y=I2[:,3],  marker='x', color='red', label='시가화용지')
 plt.legend(fontsize=20)
 plt.show()
 
 I1[:,3].min()
 I2[:,3].min()
 
-split = I2[np.where(I2[:,3] == I2[:,3].min(), True, False)][0,2]
+split = I1[np.where(I1[:,3] == I1[:,3].min(), True, False)][0,2]
 
-y1 = y[np.where(x[:,1] < split, True, False)]
-y2 = y[np.where(x[:,1] > split, True, False)]
+y1 = y[np.where(x[:,0] < split, True, False)]
+y2 = y[np.where(x[:,0] > split, True, False)]
 
 len(y1)
 len(y2)
 print(GiniIndex(y1))
-result1 = '고온' if y1.sum() > len(y1)/2 else '저온'
+result1 = '감소' if y1.sum() > len(y1)/2 else '비감소'
 len(y1) - y1.sum()
 
 print(GiniIndex(y2))
-result2 = '고온' if y2.sum() > len(y2)/2 else '저온'
+result2 = '감소' if y2.sum() > len(y2)/2 else '비감소'
 len(y2) - y2.sum()
 
 
 #%%
 """
 사이킷런 라이브러리를 이용하여 Dtree 분석하기
+https://graphviz.org/download/
 os.environ["PATH"] += os.pathsep + r'c:\Program Files\Graphviz\bin\\'
 """
 
@@ -181,8 +183,8 @@ score_tr = tree_clf.score(x, y)
 
 
 dt_dot_data  = export_graphviz(tree_clf,
-                               feature_names=['도', '대'],
-                               class_names=['low', 'high'],         # 종속변수
+                               feature_names=['계획인구', '시가화용지'],
+                               class_names=['nolow', 'low'],         # 종속변수
                                rounded = True,
                                filled = True)
 
@@ -196,12 +198,12 @@ img = gp.render('dtree_render',view=True)
 
 """변수중요도"""
 feature_imp = tree_clf.feature_importances_
-n_feature = len(['도', '대'])
+n_feature = len(['계획인구', '시가화용지'])
 idx = np.arange(n_feature)
 
 plt.figure(figsize=(5, 1))
 plt.barh(idx, feature_imp, align='center')
-plt.yticks(idx, ['도', '대'])
+plt.yticks(idx, ['계획인구', '시가화용지'])
 plt.xlabel('feature importance', size=15)
 plt.ylabel('feature', size=15)
 for i, fi in zip(idx, feature_imp):
@@ -212,7 +214,7 @@ plt.show()
 """ Depth 변화에 따른 정확도 차이 분석 = 과적합"""
 
 depth_test = np.array([])
-for depth in range(1, 21, 1) :
+for depth in range(1, 10, 1) :
     tree_clf = DecisionTreeClassifier(max_depth=depth)
     tree_clf.fit(x,y)
     score_tr = tree_clf.score(x, y)

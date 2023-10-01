@@ -114,18 +114,7 @@ print(tree.score(x_test, y_test))
 model_baggingtree.fit(x_train, y_train)
 print(model_baggingtree.score(x_train, y_train))
 print(model_baggingtree.score(x_test, y_test))
-
-m = model_baggingtree[0]
-dt_dot_data  = export_graphviz(m,
-                               feature_names=tmp.columns.drop(['종속', '시리얼번호', '온도차이', '온도비율차이']),
-                               class_names=['low', 'high'],         # 종속변수
-                               rounded = True,
-                               filled = True)
-
-
-gp = Source(dt_dot_data)
-gp.format = 'svg'
-img = gp.render('dtree_render',view=True)
+x
 
 tr = model_baggingtree[0].tree_
 

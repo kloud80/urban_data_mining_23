@@ -25,7 +25,7 @@ from keras.layers import Dense #일반적인 형태의 뉴럴네트워크 계층
 from keras import optimizers
 
 model = Sequential() #모델을 선언한다
-model.add(Dense(units=5, activation='relu', input_shape=(2,))) #은닉층 2개 추가, 활성함수 시그모이드
+model.add(Dense(units=2, activation='sigmoid', input_shape=(2,))) #은닉층 2개 추가, 활성함수 시그모이드
 # model.add(Dense(units=2, activation='relu', input_shape=(2,))) #은닉층 2개 추가, 활성함수 시그모이드
 model.add(Dense(units=1, activation='sigmoid')) # 출력층 1개 추가, 활성함수 시그모이드
 

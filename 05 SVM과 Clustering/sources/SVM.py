@@ -72,7 +72,7 @@ classifier = SVM_margin(x, y)
 classifier = SVM_margin(x, y, c=0.1)
 classifier = SVM_margin(x, y, c=0.5)
 classifier = SVM_margin(x, y, c=1)
-classifier = SVM_margin(x, y, c=10)
+classifier = SVM_margin(x, y, c=1000)
 
 
 classifier = SVM_margin(x, y, 'poly',d=1)

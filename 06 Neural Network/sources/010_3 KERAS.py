@@ -45,6 +45,7 @@ Trainable params: 9                                               << 학습 파�
 Non-trainable params: 0
 _________________________________________________________________
 """
+
 #loss함수와 학습률결정모델(optimizer) 선택하여 모델 컴파일
 model.compile(loss='mse', optimizer='adam') #learning_rate=0.1
 
